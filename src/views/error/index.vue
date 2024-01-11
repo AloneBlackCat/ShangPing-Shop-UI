@@ -33,7 +33,7 @@
 
 <script>
 import { defineComponent } from 'vue'
-import SvgIcon from "@/components/SvgIcon/index.vue";
+import SvgIcon from '@/components/SvgIcon/index.vue'
 
 export default defineComponent({
   components: { SvgIcon },

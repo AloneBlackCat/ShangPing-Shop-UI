@@ -44,28 +44,28 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from "vue";
-import { parseTime } from "@/utils";
+import { defineComponent, onMounted, ref } from 'vue'
+import { parseTime } from '@/utils'
 
 export default defineComponent({
   setup() {
-    const currentTime = ref(null);
+    const currentTime = ref(null)
     const getTime = () => {
-      currentTime.value = parseTime(new Date(), "{h}:{i}:{s}");
-      requestAnimationFrame(getTime);
-    };
+      currentTime.value = parseTime(new Date(), '{h}:{i}:{s}')
+      requestAnimationFrame(getTime)
+    }
 
     onMounted(() => {
-      requestAnimationFrame(getTime);
-    });
+      requestAnimationFrame(getTime)
+    })
 
     return {
       currentTime,
-      currentDate: parseTime(new Date(), "{y}-{m}-{d}"),
-      week: `topbar.lock-week${new Date().getDay()}`
-    };
-  }
-});
+      currentDate: parseTime(new Date(), '{y}-{m}-{d}'),
+      week: `topbar.lock-week${new Date().getDay()}`,
+    }
+  },
+})
 </script>
 <style lang="scss" scoped>
 .current-time {
