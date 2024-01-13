@@ -28,11 +28,11 @@
       <el-table-column prop="roleCode" label="角色code" width="180" />
       <el-table-column prop="description" label="角色描述" width="180" />
       <el-table-column prop="createTime" label="创建时间" />
-      <el-table-column label="操作" align="center" width="280">
-        <el-button type="primary" size="small">
+      <el-table-column label="操作" align="center" width="280" #default="scope">
+        <el-button type="primary" size="small" @click="updateRole(scope.row)">
           修改
         </el-button>
-        <el-button type="danger" size="small">
+        <el-button type="danger" size="small" @click="deleteById(scope.row.id)">
           删除
         </el-button>
       </el-table-column>
@@ -71,13 +71,19 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { GetSysRoleListByPage, SaveSysRole } from '@/api/sysRole'
-import { ElMessage } from 'element-plus'
+import {
+  DeleteSysRole,
+  GetSysRoleListByPage,
+  SaveSysRole,
+  UpdateSysRole,
+} from '@/api/sysRole'
+import { ElMessage, ElMessageBox } from 'element-plus'
 // 定义数据模型
 
 const dialogVisible = ref(false)
 
 const roleForm = {
+  id: '',
   roleName: '',
   roleCode: '',
   description: '',
@@ -85,21 +91,55 @@ const roleForm = {
 
 const sysRole = ref(roleForm)
 
+const deleteById = id => {
+  ElMessageBox.confirm('此操作将永久删除该记录, 是否继续?', 'Warning', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
+    const { code } = await DeleteSysRole(id)
+    if (code === 200) {
+      ElMessage.success('删除成功')
+      pageParams.value.page = 1
+      await fetchData()
+    }
+  })
+}
+
+// 修改
+const updateRole = row => {
+  // 对象拓展运算符
+  sysRole.value = { ...row }
+  dialogVisible.value = true
+}
+
 // 点击添加弹层
 const addShow = () => {
   sysRole.value = {}
   dialogVisible.value = true
 }
-
+// 添加和修改
 const submit = async () => {
-  const { code } = await SaveSysRole(sysRole.value)
-  if (code === 200) {
-    // 关闭弹框
-    dialogVisible.value = false
-    // 提示数据
-    ElMessage.success('添加成功')
-    // 刷新页面
-    await fetchData()
+  if (!sysRole.value.id) {
+    const { code } = await SaveSysRole(sysRole.value)
+    if (code === 200) {
+      // 关闭弹框
+      dialogVisible.value = false
+      // 提示数据
+      ElMessage.success('添加成功')
+      // 刷新页面
+      await fetchData()
+    }
+  } else {
+    const { code } = await UpdateSysRole(sysRole.value)
+    if (code === 200) {
+      // 关闭弹框
+      dialogVisible.value = false
+      // 提示数据
+      ElMessage.success('修改成功')
+      // 刷新页面
+      await fetchData()
+    }
   }
 }
 

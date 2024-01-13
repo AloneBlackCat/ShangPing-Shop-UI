@@ -15,3 +15,17 @@ export const SaveSysRole = sysRole => {
     data: sysRole,
   })
 }
+export const UpdateSysRole = sysRole => {
+  return request({
+    url: `${base_api}/updateRole`,
+    method: 'put',
+    data: sysRole,
+  })
+}
+
+export const DeleteSysRole = roleId => {
+  return request({
+    url: `${base_api}/delById/${roleId}`,
+    method: 'delete',
+  })
+}
