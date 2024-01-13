@@ -19,13 +19,14 @@
 
     <!-- 添加按钮 -->
     <div class="tools-div">
-      <el-button type="success" size="small">添 加</el-button>
+      <el-button type="success" size="small" @click="addShow">添 加</el-button>
     </div>
 
     <!--- 角色表格数据 -->
     <el-table :data="list" style="width: 100%">
       <el-table-column prop="roleName" label="角色名称" width="180" />
       <el-table-column prop="roleCode" label="角色code" width="180" />
+      <el-table-column prop="description" label="角色描述" width="180" />
       <el-table-column prop="createTime" label="创建时间" />
       <el-table-column label="操作" align="center" width="280">
         <el-button type="primary" size="small">
@@ -48,14 +49,62 @@
       :total="total"
     />
   </div>
+  <!-- 添加角色表单对话框 -->
+  <el-dialog v-model="dialogVisible" title="添加或修改角色" width="30%">
+    <el-form label-width="120px">
+      <el-form-item label="角色名称">
+        <el-input v-model="sysRole.roleName" />
+      </el-form-item>
+      <el-form-item label="角色Code">
+        <el-input v-model="sysRole.roleCode" />
+      </el-form-item>
+      <el-form-item label="角色描述">
+        <el-input v-model="sysRole.description" />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="submit">提交</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+      </el-form-item>
+    </el-form>
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { GetSysRoleListByPage } from '@/api/sysRole'
+import { ref, onMounted } from 'vue'
+import { GetSysRoleListByPage, SaveSysRole } from '@/api/sysRole'
+import { ElMessage } from 'element-plus'
 // 定义数据模型
+
+const dialogVisible = ref(false)
+
+const roleForm = {
+  roleName: '',
+  roleCode: '',
+  description: '',
+}
+
+const sysRole = ref(roleForm)
+
+// 点击添加弹层
+const addShow = () => {
+  sysRole.value = {}
+  dialogVisible.value = true
+}
+
+const submit = async () => {
+  const { code } = await SaveSysRole(sysRole.value)
+  if (code === 200) {
+    // 关闭弹框
+    dialogVisible.value = false
+    // 提示数据
+    ElMessage.success('添加成功')
+    // 刷新页面
+    await fetchData()
+  }
+}
+
 // 角色列表
-let list = reactive([])
+let list = ref([])
 // 总记录数
 let total = ref(0)
 
@@ -64,7 +113,7 @@ const pageParamsForm = {
   limit: 5, // 每页记录数
 }
 
-const pageParams = reactive(pageParamsForm)
+const pageParams = ref(pageParamsForm)
 
 const queryDto = ref({ roleName: '' }) // 条件封装数据
 
@@ -75,12 +124,11 @@ onMounted(() => {
 // 列表方法
 const fetchData = async () => {
   const { data } = await GetSysRoleListByPage(
-    pageParams.page,
-    pageParams.limit,
+    pageParams.value.page,
+    pageParams.value.limit,
     queryDto.value
   )
-  list.length = 0
-  list = data.list
+  list.value = data.list
   total.value = data.total
 }
 // 搜索方法

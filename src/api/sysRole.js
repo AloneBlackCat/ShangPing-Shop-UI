@@ -8,3 +8,10 @@ export const GetSysRoleListByPage = (current, limit, queryDto) => {
     data: queryDto,
   })
 }
+export const SaveSysRole = sysRole => {
+  return request({
+    url: `${base_api}/addRole`,
+    method: 'post',
+    data: sysRole,
+  })
+}
